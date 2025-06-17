@@ -19,4 +19,8 @@ export default [
     path: "/editar/:id",
     file: "routes/editar.$id.tsx",
   },
+  {
+    path: "/estadisticas",
+    file: "routes/estadisticas.tsx",
+  },
 ];

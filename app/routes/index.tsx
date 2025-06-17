@@ -36,7 +36,7 @@ export default function Home() {
           <p className="text-lg text-gray-400">Gestióna las tareas que tengas por hacer</p>
         </div>
 
-        <div className="flex justify-center mb-10">
+        <div className="flex justify-center gap-6 mb-10">
           <Link
             to="/crear"
             className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-lg font-semibold rounded-lg shadow-xl transition-all transform hover:scale-105 flex items-center gap-2 border border-cyan-300/20"
@@ -45,6 +45,17 @@ export default function Home() {
               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
             </svg>
             NUEVA TAREA
+          </Link>
+          <Link
+            to="/estadisticas"
+            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-lg font-semibold rounded-lg shadow-xl transition-all transform hover:scale-105 flex items-center gap-2 border border-cyan-300/20"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <rect x="3" y="12" width="4" height="8" rx="1" fill="currentColor" />
+              <rect x="9" y="8" width="4" height="12" rx="1" fill="currentColor" />
+              <rect x="15" y="4" width="4" height="16" rx="1" fill="currentColor" />
+            </svg>
+            ESTADÍSTICAS
           </Link>
         </div>
 
@@ -70,8 +81,8 @@ export default function Home() {
                     <td className="py-5 px-6 text-gray-100 font-medium whitespace-nowrap">{tarea.nombre}</td>
                     <td className="py-5 px-6">
                       <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold leading-5 ${tarea.completado
-                          ? 'bg-green-900/50 text-green-300'
-                          : 'bg-amber-900/50 text-amber-300'
+                        ? 'bg-green-900/50 text-green-300'
+                        : 'bg-amber-900/50 text-amber-300'
                         }`}>
                         {tarea.completado ? 'Completada' : 'Pendiente'}
                       </span>
