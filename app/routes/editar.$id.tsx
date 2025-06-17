@@ -1,38 +1,36 @@
-import { Form, Link, useActionData, useNavigate, useLoaderData } from "react-router-dom";
-import type { ActionFunctionArgs, LoaderFunctionArgs } from "react-router-dom";
-import { actualizarTarea, crearTarea, obtenerTareaPorId } from "../servicios/api"; 
+import { useLoaderData, Form, Link, useActionData, useNavigate } from "react-router-dom";
+import type { ActionFunctionArgs } from "react-router-dom";
+import { obtenerTareaPorId, actualizarTarea } from "../servicios/api";
 import type { Tarea } from "../interface/tarea";
 import { useEffect, useState } from "react";
 
-export async function loader({ params }: any) {
+export async function loader({ params }: { params: { id: string } }) {
   const tarea = await obtenerTareaPorId(params.id);
-  if (!tarea) throw new Response("No se encontró la tarea", { status: 404 });
   return tarea;
 }
 
-export async function action({ request, params }: any) {
+export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
 
-  const nuevaTarea: Tarea = {
-    id: params.id, 
+  const tareaActualizada: Tarea = {
+    id: params.id as string,
     nombre: formData.get("nombre") as string,
     descripcion: formData.get("descripcion") as string,
-    completado: formData.get("estado") === "completada",
+    completado: formData.get("completado") === "on", 
     fechaInicio: formData.get("fechaInicio") as string,
     fechaFinal: formData.get("fechaFinal") as string,
   };
 
   try {
-    await actualizarTarea(params.id, nuevaTarea);
-    return { success: true, mensaje: " Tarea actualizada con éxito" };
+    await actualizarTarea(params.id as string, tareaActualizada);
+    return { success: true, mensaje: "Tarea actualizada con éxito" };
   } catch (error) {
-    console.error("Error al crear tarea:", error);
-    return { success: false, mensaje: " No se pudo actualizar la tarea" };
+    return { success: false, mensaje: "No se pudo actualizar la tarea" };
   }
 }
 
-export default function Crear() {
-  const tarea = useLoaderData() as Tarea | null;
+export default function Editar() {
+  const tarea = useLoaderData() as Tarea;
   const actionData = useActionData() as { success: boolean; mensaje: string } | undefined;
   const navigate = useNavigate();
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -49,11 +47,11 @@ export default function Crear() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 p-6 font-sans">
       <div className="bg-gray-900 rounded-xl shadow-2xl border border-gray-700 max-w-lg w-full p-8 sm:p-10 backdrop-blur-sm bg-gray-800/50">
-
         {mensaje && (
           <div
-            className={`mb-6 px-4 py-3 rounded-lg text-sm font-semibold shadow-md ${actionData?.success ? "bg-green-700 text-white" : "bg-red-700 text-white"
-              }`}
+            className={`mb-6 px-4 py-3 rounded-lg text-sm font-semibold shadow-md ${
+              actionData?.success ? "bg-green-700 text-white" : "bg-red-700 text-white"
+            }`}
           >
             {mensaje}
           </div>
@@ -71,9 +69,9 @@ export default function Crear() {
           </Link>
           <div className="text-center flex-1">
             <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 tracking-tight">
-              {tarea ? "EDITAR TAREA" : "NUEVA TAREA"}
+              EDITAR TAREA
             </h2>
-            <p className="text-gray-400 mt-2">{tarea ? "Modifique los detalles de la tarea" : "Complete los detalles de la tarea"}</p>
+            <p className="text-gray-400 mt-2">Modifica los detalles de la tarea</p>
           </div>
           <div className="w-6"></div>
         </div>
@@ -83,17 +81,14 @@ export default function Crear() {
             <label htmlFor="nombre" className="block mb-2 text-sm font-medium text-cyan-300">
               Nombre de la tarea
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                defaultValue={tarea?.nombre}
-                required
-                placeholder="Ej: Reunión con cliente"
-                className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
-              />
-            </div>
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              required
+              defaultValue={tarea.nombre}
+              className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
+            />
           </div>
 
           <div>
@@ -103,12 +98,24 @@ export default function Crear() {
             <textarea
               id="descripcion"
               name="descripcion"
-              defaultValue={tarea?.descripcion}
               required
               rows={4}
-              placeholder="Detalles importantes de la tarea..."
+              defaultValue={tarea.descripcion}
               className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition resize-none"
             ></textarea>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <input
+              type="checkbox"
+              id="completado"
+              name="completado"
+              defaultChecked={tarea.completado}
+              className="h-5 w-5 text-cyan-600 bg-gray-800 border-gray-700 rounded focus:ring-cyan-500"
+            />
+            <label htmlFor="completado" className="text-cyan-300 text-sm font-medium select-none">
+              Marcar como completada
+            </label>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -120,8 +127,8 @@ export default function Crear() {
                 type="date"
                 id="fechaInicio"
                 name="fechaInicio"
-                defaultValue={tarea?.fechaInicio ? new Date(tarea.fechaInicio).toISOString().split('T')[0] : ''}
                 required
+                defaultValue={tarea.fechaInicio ? new Date(tarea.fechaInicio).toISOString().split("T")[0] : "FECHA NO ENCONTRADA"}
                 className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
               />
             </div>
@@ -134,27 +141,11 @@ export default function Crear() {
                 type="date"
                 id="fechaFinal"
                 name="fechaFinal"
-                defaultValue={tarea?.fechaFinal ? new Date(tarea.fechaFinal).toISOString().split('T')[0] : ''}
                 required
+                defaultValue={tarea.fechaFinal ? new Date(tarea.fechaFinal).toISOString().split("T")[0] : "FECHA NO ENCONTRADA"}
                 className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
               />
             </div>
-          </div>
-
-          <div>
-            <label htmlFor="estado" className="block mb-2 text-sm font-medium text-cyan-300">
-              Estado
-            </label>
-            <select
-              id="estado"
-              name="estado"
-              defaultValue={tarea?.completado ? 'completada' : 'pendiente'}
-              required
-              className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition appearance-none"
-            >
-              <option value="pendiente" className="bg-gray-800">Pendiente</option>
-              <option value="completada" className="bg-gray-800">Completada</option>
-            </select>
           </div>
 
           <div className="pt-4">
@@ -165,7 +156,7 @@ export default function Crear() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
               </svg>
-              {tarea ? "ACTUALIZAR TAREA" : "CREAR TAREA"}
+              GUARDAR CAMBIOS
             </button>
           </div>
         </Form>

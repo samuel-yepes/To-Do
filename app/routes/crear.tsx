@@ -10,7 +10,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const nuevaTarea: Omit<Tarea, "id"> = {
     nombre: formData.get("nombre") as string,
     descripcion: formData.get("descripcion") as string,
-    completado: formData.get("estado") === "completada",
+    completado: false, 
     fechaInicio: formData.get("fechaInicio") as string,
     fechaFinal: formData.get("fechaFinal") as string,
   };
@@ -128,21 +128,6 @@ export default function Crear() {
                 className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition"
               />
             </div>
-          </div>
-
-          <div>
-            <label htmlFor="estado" className="block mb-2 text-sm font-medium text-cyan-300">
-              Estado
-            </label>
-            <select
-              id="estado"
-              name="estado"
-              required
-              className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition appearance-none"
-            >
-              <option value="pendiente" className="bg-gray-800">Pendiente</option>
-              <option value="completada" className="bg-gray-800">Completada</option>
-            </select>
           </div>
 
           <div className="pt-4">
